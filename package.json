@@ -1,0 +1,16 @@
+{
+  "name": "inan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "INÄN (inan.sounds), Istanbul DJ: official site at inansounds.com.",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "check": "node scripts/build.js && node scripts/check.js",
+    "serve": "node scripts/build.js && firebase emulators:start --only hosting",
+    "deploy": "firebase deploy --only hosting:inan"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.26.0"
+  }
+}

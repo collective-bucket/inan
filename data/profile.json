@@ -1,0 +1,38 @@
+{
+  "name": "INÄN",
+  "alternateNames": ["inan.sounds", "INAN", "İnan"],
+  "url": "https://inansounds.com",
+  "city": { "en": "Istanbul", "tr": "İstanbul" },
+  "country": "TR",
+  "genres": ["Techno", "Indie Dance", "Melodic House", "Deep House"],
+  "bpm": "120–135",
+  "tagline": {
+    "en": "Istanbul DJ moving between Berlin-rooted techno and indie dance.",
+    "tr": "Berlin köklü techno ile indie dance arasında gezinen İstanbullu DJ."
+  },
+  "bioDraft": true,
+  "bio": {
+    "en": [
+      "INÄN is an Istanbul-based DJ whose sets move between Berlin-rooted techno and indie dance: long, patient journeys that usually sit between 120 and 135 BPM and lean on melody as much as on drive.",
+      "INÄN plays Istanbul rooms such as Klein, Kastel, Blind and Gazhane. Recorded sets include Sound of Berlin 3, live at Karga, and a longest-night set at Şuma Han, all published as inan.sounds on SoundCloud."
+    ],
+    "tr": [
+      "INÄN, setleri Berlin köklü techno ile indie dance arasında gezinen İstanbullu bir DJ: genellikle 120–135 BPM aralığında, ritim kadar melodiye de yaslanan uzun ve sabırlı yolculuklar.",
+      "INÄN; Klein, Kastel, Blind ve Gazhane gibi İstanbul mekânlarında çalıyor. Kayıtlı setleri arasında Karga'daki Sound of Berlin 3 canlı seti ve Şuma Han'daki en uzun gece seti var; hepsi SoundCloud'da inan.sounds adıyla yayında."
+    ]
+  },
+  "venues": ["Klein", "Kastel", "Blind", "Gazhane", "Karga", "Şuma Han"],
+  "email": "booking@inansounds.com",
+  "management": null,
+  "rider": null,
+  "links": [
+    { "id": "instagram", "label": "Instagram", "url": "https://www.instagram.com/inan.sounds/" },
+    { "id": "soundcloud", "label": "SoundCloud", "url": "https://soundcloud.com/inansounds" },
+    { "id": "residentadvisor", "label": "Resident Advisor", "url": null },
+    { "id": "spotify", "label": "Spotify", "url": null },
+    { "id": "youtube", "label": "YouTube", "url": null },
+    { "id": "bandsintown", "label": "Bandsintown", "url": null }
+  ],
+  "hero": { "image": null, "video": null },
+  "form": { "web3formsAccessKey": "" }
+}
