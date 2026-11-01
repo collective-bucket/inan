@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+      - run: npm ci
+      - run: npm run check
       - id: auth
         uses: google-github-actions/auth@v3
         with:
@@ -25,6 +27,4 @@ jobs:
           workload_identity_provider: projects/239510573325/locations/global/workloadIdentityPools/github-actions/providers/github-provider
           service_account: github-actions-deployer@collective-bucket.iam.gserviceaccount.com
           token_format: access_token
-      - run: npm ci
-      - run: npm run check
       - run: npx firebase-tools deploy --only hosting:inan --token "${{ steps.auth.outputs.access_token }}" --non-interactive
