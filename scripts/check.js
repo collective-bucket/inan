@@ -59,6 +59,7 @@ media.photos.forEach(function (p, i) {
   p.widths.forEach(function (px) { ["avif", "webp"].forEach(function (ext) { file(p.src + "-" + px + "." + ext, w + ".src"); }); });
   if (p.download) file(p.download, w + ".download");
   if (p.creditUrl) https(p.creditUrl, w + ".creditUrl");
+  assert.ok(!p.focus || ["center", "right"].indexOf(p.focus) >= 0, w + ".focus must be center or right");
   bilingual(p.alt, w + ".alt");
   assert.ok(p.width && p.height, w + " needs width and height");
   assert.ok(p.credit, w + " needs a photographer credit");
