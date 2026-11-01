@@ -15,13 +15,15 @@ All content lives in `data/` and is rendered to plain HTML at build time (`scrip
 
 | File | What |
 | --- | --- |
-| `data/profile.json` | Name, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, social links, hero image/video, Web3Forms key |
+| `data/profile.json` | Name, roles, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, social links, hero (`photo`/`mobilePhoto` = ids from `media.json`, optional `video`), Web3Forms key |
 | `data/releases.json` | SoundCloud sets, newest first is the "Listen Live" target. Artwork goes in `site/assets/img/releases/` (400×400 WebP) |
 | `data/gigs.json` | Dates. Past/upcoming is split at build time and again in the browser |
-| `data/media.json` | `photos` (`src`, `alt {en,tr}`, `width`, `height`, `credit`, `press`, `download`) and `videos` (`youtubeId`, `poster`, `title {en,tr}`) |
+| `data/media.json` | `photos` (`id`, `src` prefix → `site/assets/img/photos/<name>-<width>.{avif,webp}`, `widths`, `width`/`height` of the original, `focus` (`center`/`right`), `gallery: false` = EPK only, `alt {en,tr}`, `credit`, `creditUrl`, `press`, `download` = 2400 px JPG in `site/assets/img/press/`) and `videos` (`youtubeId`, `poster`, `title {en,tr}`) |
 | `scripts/i18n.js` | UI strings, both languages |
 
-Still to fill in: EPK bio (`bioDraft: true` until then), Resident Advisor / Spotify / YouTube / Bandsintown links, hero photo or video loop (`site/assets/hero.*`; keep the video ≤ 2 MB, it only plays on wide screens), press photos with photographer credits, management, rider, upcoming dates.
+Logo: `site/assets/img/logo.svg` (dark, for light backgrounds) and `logo-light.svg` (inlined in the header and hero). Photos: © Can Sarıçoban.
+
+Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown links, optional hero video loop (keep it ≤ 2 MB, it only plays on wide screens), live/club photos, management, rider, upcoming dates.
 
 ### Booking form
 
@@ -29,11 +31,7 @@ Set `profile.form.web3formsAccessKey` (free key from [web3forms.com](https://web
 
 ### Email (booking@inansounds.com)
 
-Free forwarding (e.g. ImprovMX) to a personal inbox. DNS at Squarespace:
-
-- MX `@` → `mx1.improvmx.com` (10), `mx2.improvmx.com` (20)
-- TXT `@` → `v=spf1 include:spf.improvmx.com ~all` (replaces the current `v=spf1 -all`)
-- TXT `_dmarc` → `v=DMARC1; p=none; rua=mailto:booking@inansounds.com`
+Squarespace's built-in email forwarding (Domains → inansounds.com → Email forwarding) to a personal inbox; Squarespace manages the MX records (`mxa`/`mxb.mailgun.org`). Inbound only: replies go out from the personal address.
 
 ## Publish
 
@@ -43,4 +41,4 @@ CI authenticates with Workload Identity Federation; the deployer service account
 
 ## License
 
-Code: MIT (see `LICENSE`). Photos, artwork, recordings and texts about the artist: © INÄN, all rights reserved.
+Code: MIT (see `LICENSE`). Logo, artwork, recordings and texts about the artist: © INÄN; photos: © their photographers (credited on the site). All rights reserved.

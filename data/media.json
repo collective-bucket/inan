@@ -1,4 +1,90 @@
 {
-  "photos": [],
+  "photos": [
+    {
+      "id": "portrait",
+      "src": "/assets/img/photos/inan-portrait",
+      "width": 3150,
+      "height": 2100,
+      "focus": "80% 35%",
+      "alt": {
+        "en": "INÄN in sunglasses and a white T-shirt in a dark industrial passage",
+        "tr": "Güneş gözlüğü ve beyaz tişörtle INÄN, karanlık bir endüstriyel geçitte"
+      },
+      "credit": "Can Sarıçoban",
+      "creditUrl": "https://www.cansaricoban.com/",
+      "date": "2026-05-09",
+      "widths": [
+        640,
+        1280,
+        1920
+      ],
+      "press": true,
+      "download": "/assets/img/press/inan-portrait.jpg",
+      "gallery": false
+    },
+    {
+      "id": "vinyl-raised",
+      "src": "/assets/img/photos/inan-vinyl-raised",
+      "width": 2100,
+      "height": 3150,
+      "focus": "50% 40%",
+      "alt": {
+        "en": "INÄN holding a vinyl record above his head in front of a brick industrial building",
+        "tr": "INÄN, tuğla bir endüstriyel yapının önünde plağı başının üstüne kaldırmış"
+      },
+      "credit": "Can Sarıçoban",
+      "creditUrl": "https://www.cansaricoban.com/",
+      "date": "2026-05-09",
+      "widths": [
+        640,
+        1280,
+        1920
+      ],
+      "press": true,
+      "download": "/assets/img/press/inan-vinyl-raised.jpg"
+    },
+    {
+      "id": "vinyl",
+      "src": "/assets/img/photos/inan-vinyl",
+      "width": 2100,
+      "height": 3150,
+      "focus": "50% 45%",
+      "alt": {
+        "en": "INÄN holding a vinyl record in front of his chest",
+        "tr": "INÄN, plağı göğsünün önünde iki eliyle tutuyor"
+      },
+      "credit": "Can Sarıçoban",
+      "creditUrl": "https://www.cansaricoban.com/",
+      "date": "2026-05-09",
+      "widths": [
+        640,
+        1280,
+        1920
+      ],
+      "press": true,
+      "download": "/assets/img/press/inan-vinyl.jpg"
+    },
+    {
+      "id": "steel",
+      "src": "/assets/img/photos/inan-steel",
+      "width": 2100,
+      "height": 3150,
+      "focus": "35% 40%",
+      "alt": {
+        "en": "INÄN with arms crossed beside a rusted steel-pipe sculpture",
+        "tr": "INÄN, kollarını kavuşturmuş, paslı çelik borulardan bir heykelin yanında"
+      },
+      "credit": "Can Sarıçoban",
+      "creditUrl": "https://www.cansaricoban.com/",
+      "date": "2026-05-09",
+      "widths": [
+        640,
+        1280,
+        1920
+      ],
+      "press": true,
+      "download": "/assets/img/press/inan-steel.jpg"
+    }
+  ],
   "videos": []
 }

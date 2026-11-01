@@ -23,6 +23,10 @@ var today = new Date().toISOString().slice(0, 10);
 var version = (process.env.GITHUB_SHA || gitSha() || Date.now().toString(36)).slice(0, 12);
 var links = profile.links.filter(function (l) { return l.url; });
 var latest = releases[0];
+var photoById = {};
+media.photos.forEach(function (p) { photoById[p.id] = p; });
+var heroPhoto = photoById[profile.hero.photo], heroMobile = photoById[profile.hero.mobilePhoto] || heroPhoto;
+var logoMarkup = fs.readFileSync(path.join(root, "site/assets/img/logo-light.svg"), "utf8").trim();
 
 function gitSha() {
   try { return childProcess.execSync("git rev-parse HEAD", { cwd: root, stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch (e) { return ""; }
@@ -50,6 +54,27 @@ function minutes(lang, sec) {
   var m = Math.round(sec / 60);
   return m >= 90 ? Math.floor(m / 60) + " " + t(lang, "hours") + " " + (m % 60) + " " + t(lang, "minutes") : m + " " + t(lang, "minutes");
 }
+function srcset(p, ext) { return p.widths.map(function (w) { return p.src + "-" + w + "." + ext + " " + w + "w"; }).join(", "); }
+function fallback(p) { return p.src + "-" + p.widths[Math.min(1, p.widths.length - 1)] + ".webp"; }
+// <picture> with AVIF + WebP sources; `mobile` swaps in a portrait crop on narrow screens.
+function picture(p, sizes, attrs, mobile) {
+  var sources = "";
+  if (mobile && mobile !== p) {
+    sources += '<source media="(max-width: 760px)" type="image/avif" srcset="' + srcset(mobile, "avif") + '" sizes="100vw">' +
+      '<source media="(max-width: 760px)" type="image/webp" srcset="' + srcset(mobile, "webp") + '" sizes="100vw">';
+  }
+  sources += '<source type="image/avif" srcset="' + srcset(p, "avif") + '" sizes="' + sizes + '">' +
+    '<source type="image/webp" srcset="' + srcset(p, "webp") + '" sizes="' + sizes + '">';
+  return "<picture>" + sources + '<img src="' + fallback(p) + '" width="' + p.width + '" height="' + p.height + '"' + attrs + "></picture>";
+}
+// Inline logo; each copy needs its own gradient id.
+var logoCount = 0;
+function logo(cls) {
+  var id = "lg" + (++logoCount);
+  return logoMarkup.replace('role="img" aria-label="INÄN"', 'class="' + cls + '" aria-hidden="true" focusable="false"').replace('id="g"', 'id="' + id + '"').replace("url(#g)", "url(#" + id + ")");
+}
+function credit(p) { return "© " + (p.creditUrl ? '<a href="' + esc(p.creditUrl) + '" rel="noopener" target="_blank">' + esc(p.credit) + "</a>" : esc(p.credit)); }
+function roles(lang) { return profile.roles.map(function (r) { return L(lang, r); }); }
 function isoDuration(sec) { return "PT" + Math.floor(sec / 3600) + "H" + Math.floor((sec % 3600) / 60) + "M" + (sec % 60) + "S"; }
 function icon(id) {
   var paths = {
@@ -68,6 +93,10 @@ function icon(id) {
 // ---------- structured data ----------
 function jsonLd(lang, page, extra) {
   var sameAs = links.map(function (l) { return l.url; });
+  var images = media.photos.filter(function (p) { return p.press; }).map(function (p) {
+    return { "@type": "ImageObject", contentUrl: SITE + p.download, url: SITE + p.download, creditText: p.credit, copyrightNotice: "© " + p.credit + ". All rights reserved.",
+      creator: { "@type": "Person", name: p.credit, url: p.creditUrl || undefined }, acquireLicensePage: SITE + "/epk" };
+  });
   var graph = [
     { "@type": "WebSite", "@id": SITE + "/#website", url: SITE + "/", name: profile.name, inLanguage: ["en", "tr"], publisher: { "@id": SITE + "/#person" } },
     {
@@ -76,20 +105,22 @@ function jsonLd(lang, page, extra) {
     },
     {
       "@type": "Person", "@id": SITE + "/#person", name: profile.name, alternateName: profile.alternateNames,
-      jobTitle: "DJ", description: profile.tagline.en, url: SITE + "/", image: SITE + "/assets/img/og.png",
+      jobTitle: ["DJ", "Music Director"], description: profile.tagline.en, url: SITE + "/", image: images.length ? images : SITE + "/assets/img/og.jpg",
+      worksFor: profile.worksFor ? { "@type": "Organization", name: profile.worksFor } : undefined,
       email: "mailto:" + profile.email, homeLocation: { "@type": "City", name: profile.city.en, address: { "@type": "PostalAddress", addressLocality: profile.city.en, addressCountry: profile.country } },
       knowsAbout: profile.genres, sameAs: sameAs, memberOf: { "@id": SITE + "/#artist" }
     },
+    profile.eventSeries ? { "@type": "EventSeries", "@id": SITE + "/#series", name: profile.eventSeries, organizer: { "@id": SITE + "/#person" }, performer: { "@id": SITE + "/#artist" }, location: { "@type": "City", name: profile.city.en } } : null,
     {
       "@type": "MusicGroup", "@id": SITE + "/#artist", name: profile.name, alternateName: profile.alternateNames,
-      description: profile.tagline.en, genre: profile.genres, url: SITE + "/", image: SITE + "/assets/img/og.png",
+      description: profile.tagline.en, genre: profile.genres, url: SITE + "/", image: SITE + "/assets/img/og.jpg", logo: SITE + "/assets/img/logo.svg",
       foundingLocation: { "@type": "City", name: profile.city.en }, member: { "@id": SITE + "/#person" }, sameAs: sameAs,
       track: releases.map(function (r) {
         return { "@type": "MusicRecording", name: r.title, url: r.url, datePublished: r.date, duration: isoDuration(r.duration), byArtist: { "@id": SITE + "/#artist" } };
       })
     }
   ];
-  return '<script type="application/ld+json">' + JSON.stringify({ "@context": "https://schema.org", "@graph": graph.concat(extra || []) }).replace(/</g, "\\u003c") + "</script>";
+  return '<script type="application/ld+json">' + JSON.stringify({ "@context": "https://schema.org", "@graph": graph.filter(Boolean).concat(extra || []) }).replace(/</g, "\\u003c") + "</script>";
 }
 function gigEvent(g) {
   var ev = {
@@ -109,7 +140,7 @@ function head(lang, page, title, description, extraHead) {
     '  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     "  <title>" + esc(title) + "</title>\n" +
     '  <meta name="description" content="' + esc(description) + '">\n' +
-    '  <meta name="keywords" content="INÄN, INÄN DJ, inan.sounds, Istanbul Techno DJ, Indie Dance DJ, Istanbul DJ, Melodic House">\n' +
+    '  <meta name="keywords" content="INÄN, INÄN DJ, inan.sounds, Istanbul Techno DJ, Berlin Techno, Indie Dance DJ, Nu Disco, Deep House, Marcel Avant, Sound of Berlin">\n' +
     '  <meta name="author" content="' + esc(profile.name) + '">\n' +
     '  <meta name="theme-color" content="#0a0a0b">\n' +
     '  <link rel="canonical" href="' + pageUrl(lang, page) + '">\n  ' + alt + "\n" +
@@ -120,7 +151,7 @@ function head(lang, page, title, description, extraHead) {
     '  <meta property="og:title" content="' + esc(title) + '">\n' +
     '  <meta property="og:description" content="' + esc(description) + '">\n' +
     '  <meta property="og:url" content="' + pageUrl(lang, page) + '">\n' +
-    '  <meta property="og:image" content="' + SITE + '/assets/img/og.png">\n' +
+    '  <meta property="og:image" content="' + SITE + '/assets/img/og.jpg">\n' +
     '  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n' +
     '  <meta property="og:locale" content="' + (lang === "tr" ? "tr_TR" : "en_GB") + '">\n' +
     '  <meta property="og:locale:alternate" content="' + (lang === "tr" ? "en_GB" : "tr_TR") + '">\n' +
@@ -142,7 +173,7 @@ function header(lang, page) {
     return '<a href="' + anchors + "#" + n[0] + '">' + esc(t(lang, n[1])) + "</a>";
   }).join("");
   return '<a class="skip" href="#main">' + esc(t(lang, "skip")) + "</a>\n" +
-    '<header class="site-header">\n  <a class="brand" href="' + home + '" aria-label="' + esc(profile.name) + '">INÄN</a>\n' +
+    '<header class="site-header">\n  <a class="brand" href="' + home + '" aria-label="' + esc(profile.name) + '">' + logo("brand-logo") + '</a>\n' +
     '  <nav class="nav" aria-label="' + esc(t(lang, "nav.primary")) + '">' + nav +
     '<a href="' + localPath(lang, "epk") + '">' + esc(t(lang, "nav.epk")) + "</a></nav>\n" +
     '  <a class="lang" href="' + localPath(other, page) + '" hreflang="' + other + '" lang="' + other + '" title="' + esc(t(lang, "lang.label")) + '">' + esc(t(lang, "lang.short")) + "</a>\n" +
@@ -170,13 +201,13 @@ function hero(lang) {
   var bg = "";
   if (profile.hero.video) {
     bg = '<video class="hero-media" muted loop playsinline preload="none" data-src="' + esc(profile.hero.video) + '"' +
-      (profile.hero.image ? ' poster="' + esc(profile.hero.image) + '"' : "") + "></video>";
-  } else if (profile.hero.image) {
-    bg = '<img class="hero-media" src="' + esc(profile.hero.image) + '" alt="" fetchpriority="high">';
+      (heroPhoto ? ' poster="' + fallback(heroPhoto) + '"' : "") + "></video>";
+  } else if (heroPhoto) {
+    bg = picture(heroPhoto, "100vw", ' class="hero-media focus-' + (heroPhoto.focus || "center") + '" alt="" fetchpriority="high" decoding="async"', heroMobile);
   }
   return '<section class="hero" aria-labelledby="hero-title">\n  ' + bg + '\n  <div class="hero-bg" aria-hidden="true"></div>\n' +
     '  <div class="hero-inner">\n    <p class="eyebrow">' + esc(t(lang, "hero.role")) + " · " + esc(L(lang, profile.city)) + "</p>\n" +
-    '    <h1 id="hero-title">INÄN</h1>\n    <p class="lede">' + esc(L(lang, profile.tagline)) + "</p>\n" +
+    '    <h1 id="hero-title">' + logo("hero-logo") + '<span class="sr-only">' + esc(profile.name) + '</span></h1>\n    <p class="lede">' + esc(L(lang, profile.tagline)) + "</p>\n" +
     '    <div class="cta">\n      <a class="btn btn-live" href="' + esc(latest.url) + '" data-listen="0">' + icon("play") + "<span>" + esc(t(lang, "hero.listen")) + "</span></a>\n" +
     '      <a class="btn btn-ghost" href="#booking">' + esc(t(lang, "hero.book")) + "</a>\n    </div>\n" +
     '    <p class="latest">' + esc(t(lang, "hero.latest")) + ': <a href="' + esc(latest.url) + '">' + esc(latest.title) + "</a></p>\n" +
@@ -185,7 +216,8 @@ function hero(lang) {
 function about(lang) {
   return '<section id="about" class="section" aria-labelledby="about-title">\n  <h2 id="about-title">' + esc(t(lang, "about.title")) + "</h2>\n" +
     '  <div class="about">\n    <div class="prose">' + profile.bio[lang].map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>\n" +
-    '    <dl class="facts">\n      <div><dt>' + esc(t(lang, "about.genres")) + "</dt><dd>" + esc(profile.genres.join(" · ")) + " · " + esc(profile.bpm) + " BPM</dd></div>\n" +
+    '    <dl class="facts">\n      <div><dt>' + esc(t(lang, "about.roles")) + "</dt><dd>" + esc(roles(lang).join(" · ")) + "</dd></div>\n" +
+    "      <div><dt>" + esc(t(lang, "about.genres")) + "</dt><dd>" + esc(profile.genres.join(" · ")) + " · " + esc(profile.bpm) + " BPM</dd></div>\n" +
     "      <div><dt>" + esc(t(lang, "about.based")) + "</dt><dd>" + esc(L(lang, profile.city)) + "</dd></div>\n" +
     "      <div><dt>" + esc(t(lang, "about.venues")) + "</dt><dd>" + esc(profile.venues.join(" · ")) + "</dd></div>\n    </dl>\n  </div>\n</section>\n";
 }
@@ -227,9 +259,9 @@ function mediaSection(lang) {
   if (!media.photos.length && !media.videos.length) {
     body = '  <div class="placeholder"><p>' + esc(t(lang, "media.soon")) + '</p><a class="btn btn-ghost" href="' + esc(ig.url) + '" rel="noopener" target="_blank">' + icon("instagram") + "<span>" + esc(t(lang, "media.follow")) + "</span></a></div>\n";
   } else {
-    body = '  <ul class="gallery">' + media.photos.map(function (p) {
-      return '<li><figure><img src="' + esc(p.src) + '" alt="' + esc(L(lang, p.alt)) + '" width="' + p.width + '" height="' + p.height + '" loading="lazy" decoding="async">' +
-        (p.credit ? "<figcaption>© " + esc(p.credit) + "</figcaption>" : "") + "</figure></li>";
+    body = '  <ul class="gallery">' + media.photos.filter(function (p) { return p.gallery !== false; }).map(function (p) {
+      return "<li><figure>" + picture(p, "(max-width: 600px) 100vw, (max-width: 1120px) 50vw, 280px", ' class="focus-' + (p.focus || "center") + '" alt="' + esc(L(lang, p.alt)) + '" loading="lazy" decoding="async"') +
+        "<figcaption>" + credit(p) + "</figcaption></figure></li>";
     }).join("") + media.videos.map(function (v) {
       return '<li class="video" data-yt="' + esc(v.youtubeId) + '"><a href="https://www.youtube.com/watch?v=' + esc(v.youtubeId) + '">' +
         '<img src="' + esc(v.poster) + '" alt="" loading="lazy">' + icon("play") + "<span>" + esc(L(lang, v.title)) + "</span></a></li>";
@@ -269,7 +301,9 @@ function bookingSection(lang) {
 // ---------- pages ----------
 function homePage(lang) {
   var title = profile.name + (lang === "tr" ? " | İstanbul Techno ve Indie Dance DJ (inan.sounds)" : " | Istanbul Techno & Indie Dance DJ (inan.sounds)");
-  var preload = profile.hero.image && !profile.hero.video ? '  <link rel="preload" as="image" href="' + esc(profile.hero.image) + '">\n' : "";
+  var preload = heroPhoto && !profile.hero.video ?
+    (heroMobile !== heroPhoto ? '  <link rel="preload" as="image" type="image/avif" media="(max-width: 760px)" imagesrcset="' + srcset(heroMobile, "avif") + '" imagesizes="100vw" fetchpriority="high">\n' : "") +
+    '  <link rel="preload" as="image" type="image/avif"' + (heroMobile !== heroPhoto ? ' media="(min-width: 761px)"' : "") + ' imagesrcset="' + srcset(heroPhoto, "avif") + '" imagesizes="100vw" fetchpriority="high">\n' : "";
   return page(lang, "", title, L(lang, profile.tagline) + " " + profile.genres.join(", ") + ".",
     hero(lang) + about(lang) + music(lang) + gigsSection(lang) + mediaSection(lang) + bookingSection(lang),
     jsonLd(lang, "", gigs.map(gigEvent)), preload);
@@ -281,6 +315,7 @@ function epkPage(lang) {
     '  <p class="lede">' + esc(L(lang, profile.tagline)) + "</p>\n" +
     "  <h2>" + esc(t(lang, "epk.short")) + '</h2>\n  <div class="prose">' + profile.bio[lang].map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>\n" +
     "  <h2>" + esc(t(lang, "epk.facts")) + '</h2>\n  <dl class="facts">' +
+    "<div><dt>" + esc(t(lang, "about.roles")) + "</dt><dd>" + esc(roles(lang).join(" · ")) + "</dd></div>" +
     "<div><dt>" + esc(t(lang, "about.genres")) + "</dt><dd>" + esc(profile.genres.join(" · ")) + "</dd></div>" +
     "<div><dt>" + esc(t(lang, "epk.bpm")) + "</dt><dd>" + esc(profile.bpm) + "</dd></div>" +
     "<div><dt>" + esc(t(lang, "about.based")) + "</dt><dd>" + esc(L(lang, profile.city)) + "</dd></div>" +
@@ -292,9 +327,12 @@ function epkPage(lang) {
       return "<li>" + esc(l.label) + ': <a href="' + esc(l.url) + '" rel="me">' + esc(l.url.replace(/^https:\/\/(www\.)?/, "").replace(/\/$/, "")) + "</a></li>";
     }).join("") + "</ul>\n" +
     "  <h2>" + esc(t(lang, "epk.photos")) + "</h2>\n" + (photos.length ? '  <ul class="gallery">' + photos.map(function (p) {
-      return '<li><figure><img src="' + esc(p.src) + '" alt="' + esc(L(lang, p.alt)) + '" loading="lazy"><figcaption>' + (p.credit ? "© " + esc(p.credit) + " · " : "") +
-        '<a href="' + esc(p.download || p.src) + '" download>' + esc(t(lang, "epk.download")) + "</a></figcaption></figure></li>";
-    }).join("") + "</ul>\n" : "  <p>" + esc(t(lang, "epk.photosSoon")) + "</p>\n") +
+      return "<li><figure>" + picture(p, "(max-width: 600px) 100vw, 280px", ' class="focus-' + (p.focus || "center") + '" alt="' + esc(L(lang, p.alt)) + '" loading="lazy" decoding="async"') +
+        "<figcaption>" + credit(p) + (p.download ? ' · <a href="' + esc(p.download) + '" download>' + esc(t(lang, "epk.download")) + "</a>" : "") + "</figcaption></figure></li>";
+    }).join("") + "</ul>\n  <p class=\"fine\">" + esc(t(lang, "media.rights")) + "</p>\n" : "  <p>" + esc(t(lang, "epk.photosSoon")) + "</p>\n") +
+    "  <h2>" + esc(t(lang, "epk.logo")) + '</h2>\n  <ul class="logos">' +
+    '<li class="logo-dark"><img src="/assets/img/logo.svg" alt="" width="240" height="102"><a href="/assets/img/logo.svg" download="inan-logo.svg">' + esc(t(lang, "epk.logoDark")) + "</a></li>" +
+    '<li><img src="/assets/img/logo-light.svg" alt="" width="240" height="102"><a href="/assets/img/logo-light.svg" download="inan-logo-light.svg">' + esc(t(lang, "epk.logoLight")) + "</a></li></ul>\n" +
     "  <h2>" + esc(t(lang, "epk.rider")) + "</h2>\n  <p>" + (profile.rider ? esc(L(lang, profile.rider)) : esc(t(lang, "epk.riderSoon"))) + "</p>\n" +
     "  <h2>" + esc(t(lang, "epk.contact")) + '</h2>\n  <p><a href="mailto:' + profile.email + '">' + profile.email + "</a>" +
     (profile.management ? " · " + esc(profile.management.name) : "") + "</p>\n</article>\n";
@@ -346,9 +384,10 @@ function llms() {
   var gigLine = function (g) { return "- " + g.date + ": " + g.venue + (g.title ? " (" + g.title.en + ")" : "") + ", " + L("en", g.city) + (g.recording ? " — recording: " + g.recording : ""); };
   return "# " + profile.name + "\n\n> " + profile.tagline.en + " Also known as " + profile.alternateNames.join(", ") + ".\n\n" +
     profile.bio.en.join("\n\n") + "\n\n" +
-    "- Genres: " + profile.genres.join(", ") + " (" + profile.bpm + " BPM)\n- Based in: " + profile.city.en + ", Türkiye\n- Venues: " + profile.venues.join(", ") +
+    "- Roles: " + roles("en").join(", ") + "\n- Genres: " + profile.genres.join(", ") + " (" + profile.bpm + " BPM)\n- Based in: " + profile.city.en + ", Türkiye\n- Venues: " + profile.venues.join(", ") +
     "\n- Booking: " + profile.email + (profile.management ? " / management: " + profile.management.name : "") + "\n\n" +
     "## Links\n\n" + links.map(function (l) { return "- [" + l.label + "](" + l.url + ")"; }).join("\n") + "\n- [Electronic press kit](" + SITE + "/epk)\n- [Türkçe](" + SITE + "/tr)\n\n" +
+    (media.photos.length ? "## Press photos\n\n" + media.photos.filter(function (p) { return p.press; }).map(function (p) { return "- [" + p.alt.en + "](" + SITE + p.download + "): © " + p.credit; }).join("\n") + "\n\n" : "") +
     "## Sets\n\n" + releases.map(function (r) { return "- [" + r.title + "](" + r.url + "): " + r.date + ", " + Math.round(r.duration / 60) + " min, " + r.genre; }).join("\n") + "\n\n" +
     "## Dates\n\n" + (upcoming.length ? upcoming.map(gigLine).join("\n") : "- No upcoming public dates announced.") + "\n\nPast:\n\n" + past.map(gigLine).join("\n") + "\n";
 }
