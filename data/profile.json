@@ -1,38 +1,105 @@
 {
   "name": "INÄN",
-  "alternateNames": ["inan.sounds", "INAN", "İnan"],
+  "alternateNames": [
+    "inan.sounds",
+    "INAN",
+    "İnan"
+  ],
   "url": "https://inansounds.com",
-  "city": { "en": "Istanbul", "tr": "İstanbul" },
+  "city": {
+    "en": "Istanbul",
+    "tr": "İstanbul"
+  },
   "country": "TR",
-  "genres": ["Techno", "Indie Dance", "Melodic House", "Deep House"],
+  "roles": [
+    {
+      "en": "DJ",
+      "tr": "DJ"
+    },
+    {
+      "en": "Music Director at Marcel Avant",
+      "tr": "Marcel Avant Müzik Direktörü"
+    },
+    {
+      "en": "Founder of Sound of Berlin",
+      "tr": "Sound of Berlin kurucusu"
+    }
+  ],
+  "worksFor": "Marcel Avant",
+  "eventSeries": "Sound of Berlin",
+  "genres": [
+    "Berlin Techno",
+    "Indie Dance",
+    "House",
+    "Deep House",
+    "Nu Disco",
+    "Raw/Hypnotic Techno"
+  ],
   "bpm": "120–135",
   "tagline": {
-    "en": "Istanbul DJ moving between Berlin-rooted techno and indie dance.",
-    "tr": "Berlin köklü techno ile indie dance arasında gezinen İstanbullu DJ."
+    "en": "Istanbul-based DJ and Music Director at Marcel Avant: hypnotic, Berlin-rooted techno and indie dance.",
+    "tr": "İstanbullu DJ ve Marcel Avant müzik direktörü: Berlin köklü, hipnotik techno ve indie dance."
   },
-  "bioDraft": true,
   "bio": {
     "en": [
-      "INÄN is an Istanbul-based DJ whose sets move between Berlin-rooted techno and indie dance: long, patient journeys that usually sit between 120 and 135 BPM and lean on melody as much as on drive.",
-      "INÄN plays Istanbul rooms such as Klein, Kastel, Blind and Gazhane. Recorded sets include Sound of Berlin 3, live at Karga, and a longest-night set at Suma Han, all published as inan.sounds on SoundCloud."
+      "INÄN is an Istanbul-based DJ and the Music Director at Marcel Avant, known for crafting immersive, hypnotic sonic journeys rooted in Berlin techno culture. His sound fluidly bridges the gap between raw, driving techno and energetic indie dance, underpinned by deep house and nu disco grooves—typically ranging between 120 and 135 BPM. Balancing hypnotic rhythms with rich melodic depth, his sets are built as patient, evolving musical narratives designed for late-night dancefloors.",
+      "A prominent figure in Istanbul’s underground scene, INÄN has performed at iconic venues and events such as Klein, Kastel, Blind, Ters Kadıköy, Kiki, Suma Han, and Bonjuk Bay (WhyNot Festival). As the creator and organizer of the Sound of Berlin event series, he actively shapes and curates distinctive electronic music experiences. His acclaimed DJ sets and live recordings, including Make Love to the Sun, Spree-delic Dreams, and Solstice Spectrum, are available on SoundCloud under @inan.sounds."
     ],
     "tr": [
-      "INÄN, setleri Berlin köklü techno ile indie dance arasında gezinen İstanbullu bir DJ: genellikle 120–135 BPM aralığında, ritim kadar melodiye de yaslanan uzun ve sabırlı yolculuklar.",
-      "INÄN; Klein, Kastel, Blind ve Gazhane gibi İstanbul mekânlarında çalıyor. Kayıtlı setleri arasında Karga'daki Sound of Berlin 3 canlı seti ve Suma Han'daki en uzun gece seti var; hepsi SoundCloud'da inan.sounds adıyla yayında."
+      "INÄN, İstanbullu bir DJ ve Marcel Avant'ın müzik direktörü; Berlin techno kültüründen beslenen, dinleyeni içine çeken hipnotik ses yolculuklarıyla tanınıyor. Sesi; ham ve sürükleyici techno ile enerjik indie dance arasında akıcı bir köprü kuruyor, altını deep house ve nu disco groove'larıyla dolduruyor ve genellikle 120–135 BPM aralığında ilerliyor. Hipnotik ritimleri zengin bir melodik derinlikle dengeleyen setleri, gece geç saatlerin dans pistleri için kurulmuş, sabırla gelişen müzikal anlatılar.",
+      "İstanbul underground sahnesinin öne çıkan isimlerinden INÄN; Klein, Kastel, Blind, Ters Kadıköy, Kiki, Suma Han ve Bonjuk Bay (WhyNot Festival) gibi sevilen mekân ve etkinliklerde sahne aldı. Yaratıcısı ve organizatörü olduğu Sound of Berlin etkinlik serisiyle kendine özgü elektronik müzik deneyimlerini kendisi şekillendiriyor ve küratörlüğünü üstleniyor. Make Love to the Sun, Spree-delic Dreams ve Solstice Spectrum gibi beğeni toplayan DJ setleri ve canlı kayıtları SoundCloud'da @inan.sounds adıyla yayında."
     ]
   },
-  "venues": ["Klein", "Kastel", "Blind", "Gazhane", "Karga", "Suma Han"],
+  "venues": [
+    "Klein",
+    "Kastel",
+    "Blind",
+    "Ters Kadıköy",
+    "Kiki",
+    "Suma Han",
+    "Bonjuk Bay (WhyNot Festival)"
+  ],
   "email": "booking@inansounds.com",
   "management": null,
   "rider": null,
   "links": [
-    { "id": "instagram", "label": "Instagram", "url": "https://www.instagram.com/inan.sounds/" },
-    { "id": "soundcloud", "label": "SoundCloud", "url": "https://soundcloud.com/inansounds" },
-    { "id": "residentadvisor", "label": "Resident Advisor", "url": null },
-    { "id": "spotify", "label": "Spotify", "url": null },
-    { "id": "youtube", "label": "YouTube", "url": null },
-    { "id": "bandsintown", "label": "Bandsintown", "url": null }
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/inan.sounds/"
+    },
+    {
+      "id": "soundcloud",
+      "label": "SoundCloud",
+      "url": "https://soundcloud.com/inansounds"
+    },
+    {
+      "id": "residentadvisor",
+      "label": "Resident Advisor",
+      "url": null
+    },
+    {
+      "id": "spotify",
+      "label": "Spotify",
+      "url": null
+    },
+    {
+      "id": "youtube",
+      "label": "YouTube",
+      "url": null
+    },
+    {
+      "id": "bandsintown",
+      "label": "Bandsintown",
+      "url": null
+    }
   ],
-  "hero": { "image": null, "video": null },
-  "form": { "web3formsAccessKey": "" }
+  "hero": {
+    "photo": "portrait",
+    "mobilePhoto": "vinyl-raised",
+    "video": null
+  },
+  "form": {
+    "web3formsAccessKey": ""
+  }
 }

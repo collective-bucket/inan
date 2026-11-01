@@ -28,7 +28,8 @@ bilingual(profile.tagline, "profile.tagline");
 bilingual(profile.city, "profile.city");
 assert.ok(profile.bio.en.length && profile.bio.en.length === profile.bio.tr.length, "profile.bio en/tr paragraph counts differ");
 profile.links.forEach(function (l, i) { assert.ok(l.id && l.label, "links[" + i + "]"); if (l.url) https(l.url, "links[" + i + "]"); });
-if (profile.hero.image) file(profile.hero.image, "profile.hero.image");
+assert.ok(profile.roles && profile.roles.length, "profile.roles is empty");
+profile.roles.forEach(function (r, i) { bilingual(r, "profile.roles[" + i + "]"); });
 if (profile.hero.video) file(profile.hero.video, "profile.hero.video");
 if (profile.rider) bilingual(profile.rider, "profile.rider");
 
@@ -54,10 +55,17 @@ readJson("gigs.json").forEach(function (g, i) {
 var media = readJson("media.json");
 media.photos.forEach(function (p, i) {
   var w = "media.photos[" + i + "]";
-  file(p.src, w + ".src");
+  assert.ok(p.id && p.widths && p.widths.length, w + " needs id and widths");
+  p.widths.forEach(function (px) { ["avif", "webp"].forEach(function (ext) { file(p.src + "-" + px + "." + ext, w + ".src"); }); });
+  if (p.download) file(p.download, w + ".download");
+  if (p.creditUrl) https(p.creditUrl, w + ".creditUrl");
   bilingual(p.alt, w + ".alt");
   assert.ok(p.width && p.height, w + " needs width and height");
   assert.ok(p.credit, w + " needs a photographer credit");
+});
+["photo", "mobilePhoto"].forEach(function (k) {
+  var id = profile.hero[k];
+  if (id) assert.ok(media.photos.some(function (p) { return p.id === id; }), "profile.hero." + k + ": no photo with id " + id);
 });
 media.videos.forEach(function (v, i) { assert.ok(v.youtubeId && v.poster, "media.videos[" + i + "]"); bilingual(v.title, "media.videos[" + i + "].title"); file(v.poster, "media.videos[" + i + "].poster"); });
 
