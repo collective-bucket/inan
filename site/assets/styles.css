@@ -187,6 +187,7 @@ p { margin: 0 0 1em; }
 /* epk */
 .epk h2 { font-size: 1.1rem; margin-top: 2em; color: var(--accent); }
 .epk-head { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+.epk-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .epk h1 { font-size: clamp(1.8rem, 5vw, 3rem); }
 .plain { padding-left: 1.2em; }
 .plain li { margin-bottom: 6px; }
@@ -200,7 +201,7 @@ p { margin: 0 0 1em; }
 }
 @media print {
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; --surface: #fff; --accent: #000; }
-  .site-header, .site-footer, .print, .skip { display: none; }
+  .site-header, .site-footer, .epk-actions, .skip { display: none; }
   .section { padding-top: 0; }
   a { text-decoration: none; }
 }

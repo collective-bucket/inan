@@ -311,7 +311,8 @@ function homePage(lang) {
 function epkPage(lang) {
   var photos = media.photos.filter(function (p) { return p.press; });
   var body = '<article class="section epk">\n  <div class="epk-head"><h1>' + esc(profile.name) + " · " + esc(t(lang, "epk.title")) + "</h1>" +
-    '<button type="button" class="btn btn-ghost btn-small print">' + esc(t(lang, "epk.print")) + "</button></div>\n" +
+    '<div class="epk-actions">' + (profile.pressKit ? '<a class="btn btn-small" href="' + esc(profile.pressKit) + '" download>' + esc(t(lang, "epk.pdf")) + "</a>" : "") +
+    '<button type="button" class="btn btn-ghost btn-small print">' + esc(t(lang, "epk.print")) + "</button></div></div>\n" +
     '  <p class="lede">' + esc(L(lang, profile.tagline)) + "</p>\n" +
     "  <h2>" + esc(t(lang, "epk.short")) + '</h2>\n  <div class="prose">' + profile.bio[lang].map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>\n" +
     "  <h2>" + esc(t(lang, "epk.facts")) + '</h2>\n  <dl class="facts">' +
@@ -386,7 +387,7 @@ function llms() {
     profile.bio.en.join("\n\n") + "\n\n" +
     "- Roles: " + roles("en").join(", ") + "\n- Genres: " + profile.genres.join(", ") + " (" + profile.bpm + " BPM)\n- Based in: " + profile.city.en + ", Türkiye\n- Venues: " + profile.venues.join(", ") +
     "\n- Booking: " + profile.email + (profile.management ? " / management: " + profile.management.name : "") + "\n\n" +
-    "## Links\n\n" + links.map(function (l) { return "- [" + l.label + "](" + l.url + ")"; }).join("\n") + "\n- [Electronic press kit](" + SITE + "/epk)\n- [Türkçe](" + SITE + "/tr)\n\n" +
+    "## Links\n\n" + links.map(function (l) { return "- [" + l.label + "](" + l.url + ")"; }).join("\n") + "\n- [Electronic press kit](" + SITE + "/epk)" + (profile.pressKit ? "\n- [Press kit (PDF)](" + SITE + profile.pressKit + ")" : "") + "\n- [Türkçe](" + SITE + "/tr)\n\n" +
     (media.photos.length ? "## Press photos\n\n" + media.photos.filter(function (p) { return p.press; }).map(function (p) { return "- [" + p.alt.en + "](" + SITE + p.download + "): © " + p.credit; }).join("\n") + "\n\n" : "") +
     "## Sets\n\n" + releases.map(function (r) { return "- [" + r.title + "](" + r.url + "): " + r.date + ", " + Math.round(r.duration / 60) + " min, " + r.genre; }).join("\n") + "\n\n" +
     "## Dates\n\n" + (upcoming.length ? upcoming.map(gigLine).join("\n") : "- No upcoming public dates announced.") + "\n\nPast:\n\n" + past.map(gigLine).join("\n") + "\n";

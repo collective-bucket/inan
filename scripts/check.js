@@ -32,6 +32,7 @@ assert.ok(profile.roles && profile.roles.length, "profile.roles is empty");
 profile.roles.forEach(function (r, i) { bilingual(r, "profile.roles[" + i + "]"); });
 if (profile.hero.video) file(profile.hero.video, "profile.hero.video");
 if (profile.rider) bilingual(profile.rider, "profile.rider");
+if (profile.pressKit) file(profile.pressKit, "profile.pressKit");
 
 var releases = readJson("releases.json");
 assert.ok(releases.length, "releases.json is empty");

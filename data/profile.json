@@ -61,7 +61,11 @@
   ],
   "email": "booking@inansounds.com",
   "management": null,
-  "rider": null,
+  "rider": {
+    "en": "3–4× Pioneer CDJ-3000 or CDJ-2000NXS2 · 1× Pioneer DJM-900NXS2 or DJM-V10, or Allen & Heath Xone:92 / Xone:96 · 2× high-quality booth monitors at ear level with independent control · Strictly no DJ controllers · Vinyl-ready setup (optional)",
+    "tr": "3–4× Pioneer CDJ-3000 veya CDJ-2000NXS2 · 1× Pioneer DJM-900NXS2 veya DJM-V10 ya da Allen & Heath Xone:92 / Xone:96 · Kulak hizasında, ayrı kontrollü 2× kaliteli kabin monitörü · Kesinlikle DJ controller yok · Plak çalmaya hazır kurulum (opsiyonel)"
+  },
+  "pressKit": "/assets/press/inan-press-kit.pdf",
   "links": [
     {
       "id": "instagram",

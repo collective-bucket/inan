@@ -15,7 +15,7 @@ All content lives in `data/` and is rendered to plain HTML at build time (`scrip
 
 | File | What |
 | --- | --- |
-| `data/profile.json` | Name, roles, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, social links, hero (`photo`/`mobilePhoto` = ids from `media.json`, optional `video`), Web3Forms key |
+| `data/profile.json` | Name, roles, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, `pressKit` (PDF in `site/assets/press/`), social links, hero (`photo`/`mobilePhoto` = ids from `media.json`, optional `video`), Web3Forms key |
 | `data/releases.json` | SoundCloud sets, newest first is the "Listen Live" target. Artwork goes in `site/assets/img/releases/` (400×400 WebP) |
 | `data/gigs.json` | Dates. Past/upcoming is split at build time and again in the browser |
 | `data/media.json` | `photos` (`id`, `src` prefix → `site/assets/img/photos/<name>-<width>.{avif,webp}`, `widths`, `width`/`height` of the original, `focus` (`center`/`right`), `gallery: false` = EPK only, `alt {en,tr}`, `credit`, `creditUrl`, `press`, `download` = 2400 px JPG in `site/assets/img/press/`) and `videos` (`youtubeId`, `poster`, `title {en,tr}`) |
@@ -23,7 +23,7 @@ All content lives in `data/` and is rendered to plain HTML at build time (`scrip
 
 Logo: `site/assets/img/logo.svg` (dark, for light backgrounds) and `logo-light.svg` (inlined in the header and hero). Photos: © Can Sarıçoban.
 
-Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown links, optional hero video loop (keep it ≤ 2 MB, it only plays on wide screens), live/club photos, management, rider, upcoming dates.
+Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown links, optional hero video loop (keep it ≤ 2 MB, it only plays on wide screens), live/club photos, management, upcoming dates.
 
 ### Booking form
 
