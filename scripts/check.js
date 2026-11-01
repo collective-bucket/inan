@@ -32,6 +32,7 @@ assert.ok(profile.roles && profile.roles.length, "profile.roles is empty");
 profile.roles.forEach(function (r, i) { bilingual(r, "profile.roles[" + i + "]"); });
 if (profile.hero.video) file(profile.hero.video, "profile.hero.video");
 if (profile.rider) bilingual(profile.rider, "profile.rider");
+if (profile.pressKit) file(profile.pressKit, "profile.pressKit");
 
 var releases = readJson("releases.json");
 assert.ok(releases.length, "releases.json is empty");
@@ -59,6 +60,7 @@ media.photos.forEach(function (p, i) {
   p.widths.forEach(function (px) { ["avif", "webp"].forEach(function (ext) { file(p.src + "-" + px + "." + ext, w + ".src"); }); });
   if (p.download) file(p.download, w + ".download");
   if (p.creditUrl) https(p.creditUrl, w + ".creditUrl");
+  assert.ok(!p.focus || ["center", "right"].indexOf(p.focus) >= 0, w + ".focus must be center or right");
   bilingual(p.alt, w + ".alt");
   assert.ok(p.width && p.height, w + " needs width and height");
   assert.ok(p.credit, w + " needs a photographer credit");

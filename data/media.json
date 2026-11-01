@@ -5,7 +5,7 @@
       "src": "/assets/img/photos/inan-portrait",
       "width": 3150,
       "height": 2100,
-      "focus": "80% 35%",
+      "focus": "right",
       "alt": {
         "en": "INÄN in sunglasses and a white T-shirt in a dark industrial passage",
         "tr": "Güneş gözlüğü ve beyaz tişörtle INÄN, karanlık bir endüstriyel geçitte"
@@ -27,7 +27,7 @@
       "src": "/assets/img/photos/inan-vinyl-raised",
       "width": 2100,
       "height": 3150,
-      "focus": "50% 40%",
+      "focus": "center",
       "alt": {
         "en": "INÄN holding a vinyl record above his head in front of a brick industrial building",
         "tr": "INÄN, tuğla bir endüstriyel yapının önünde plağı başının üstüne kaldırmış"
@@ -48,7 +48,7 @@
       "src": "/assets/img/photos/inan-vinyl",
       "width": 2100,
       "height": 3150,
-      "focus": "50% 45%",
+      "focus": "center",
       "alt": {
         "en": "INÄN holding a vinyl record in front of his chest",
         "tr": "INÄN, plağı göğsünün önünde iki eliyle tutuyor"
@@ -69,7 +69,7 @@
       "src": "/assets/img/photos/inan-steel",
       "width": 2100,
       "height": 3150,
-      "focus": "35% 40%",
+      "focus": "center",
       "alt": {
         "en": "INÄN with arms crossed beside a rusted steel-pipe sculpture",
         "tr": "INÄN, kollarını kavuşturmuş, paslı çelik borulardan bir heykelin yanında"
