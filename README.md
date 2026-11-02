@@ -27,7 +27,7 @@ Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown links, opti
 
 ### Booking form
 
-Set `profile.form.web3formsAccessKey` (free key from [web3forms.com](https://web3forms.com), created for the address that should receive enquiries). Without a key the form opens a prefilled email to `booking@inansounds.com`.
+Set `profile.form.web3formsAccessKey` (free key from [web3forms.com](https://web3forms.com), created for the address that should receive enquiries). The form posts to Web3Forms with `fetch` (subject built from venue/date/city; the sender's `email` becomes Reply-To). On error or a 15 s timeout it shows a prefilled `mailto:` link; without a key it only opens that mailto. The key is public by design; the free plan has no domain restriction, so spam is handled by the `botcheck` honeypot.
 
 ### Email (booking@inansounds.com)
 
