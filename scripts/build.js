@@ -21,7 +21,9 @@ var SITE = profile.url;
 var LANGS = ["en", "tr"];
 var today = new Date().toISOString().slice(0, 10);
 var version = (process.env.GITHUB_SHA || gitSha() || Date.now().toString(36)).slice(0, 12);
-var links = profile.links.filter(function (l) { return l.url; });
+var profiles = profile.links.filter(function (l) { return l.url; });
+var links = profiles.filter(function (l) { return !l.schemaOnly; });
+var modified = gitDate() || today;
 var latest = releases[0];
 var photoById = {};
 media.photos.forEach(function (p) { photoById[p.id] = p; });
@@ -30,6 +32,9 @@ var logoMarkup = fs.readFileSync(path.join(root, "site/assets/img/logo-light.svg
 
 function gitSha() {
   try { return childProcess.execSync("git rev-parse HEAD", { cwd: root, stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch (e) { return ""; }
+}
+function gitDate() {
+  try { return childProcess.execSync("git log -1 --format=%cs -- data site scripts", { cwd: root, stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch (e) { return ""; }
 }
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -86,41 +91,39 @@ function icon(id) {
     bandsintown: '<path d="M4 4h4v12h4V4h4v12h4v4H4z"/>',
     play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
     mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    link: '<path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
     file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>'
   };
-  return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + paths[id] + "</svg>";
+  return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (paths[id] || paths.link) + "</svg>";
 }
 
 // ---------- structured data ----------
 function jsonLd(lang, page, extra) {
-  var sameAs = links.map(function (l) { return l.url; });
+  var person = { "@id": SITE + "/#person" };
   var images = media.photos.filter(function (p) { return p.press; }).map(function (p) {
-    return { "@type": "ImageObject", contentUrl: SITE + p.download, url: SITE + p.download, creditText: p.credit, copyrightNotice: "© " + p.credit + ". All rights reserved.",
+    return { "@type": "ImageObject", contentUrl: SITE + p.download, url: SITE + p.download, caption: L(lang, p.alt), creditText: p.credit, copyrightNotice: "© " + p.credit + ". All rights reserved.",
       creator: { "@type": "Person", name: p.credit, url: p.creditUrl || undefined }, acquireLicensePage: SITE + "/epk" };
   });
   var graph = [
-    { "@type": "WebSite", "@id": SITE + "/#website", url: SITE + "/", name: profile.name, inLanguage: ["en", "tr"], publisher: { "@id": SITE + "/#person" } },
+    { "@type": "WebSite", "@id": SITE + "/#website", url: SITE + "/", name: profile.name, alternateName: SITE.replace(/^https:\/\//, ""), inLanguage: ["en", "tr"], publisher: person, about: person },
     {
       "@type": "ProfilePage", "@id": pageUrl(lang, page) + "#page", url: pageUrl(lang, page), inLanguage: lang,
-      isPartOf: { "@id": SITE + "/#website" }, mainEntity: { "@id": SITE + "/#person" }, dateModified: today
+      isPartOf: { "@id": SITE + "/#website" }, mainEntity: person, dateModified: modified
     },
     {
       "@type": "Person", "@id": SITE + "/#person", name: profile.name, alternateName: profile.alternateNames,
-      jobTitle: ["DJ", "Music Director"], description: profile.tagline.en, url: SITE + "/", image: images.length ? images : SITE + "/assets/img/og.jpg",
+      description: L(lang, profile.tagline), disambiguatingDescription: L(lang, profile.disambiguation),
+      jobTitle: ["DJ", "Music Director"], url: SITE + "/", mainEntityOfPage: pageUrl(lang, page),
+      image: images.length ? images : SITE + "/assets/img/og.jpg",
       worksFor: profile.worksFor ? { "@type": "Organization", name: profile.worksFor } : undefined,
-      email: "mailto:" + profile.email, homeLocation: { "@type": "City", name: profile.city.en, address: { "@type": "PostalAddress", addressLocality: profile.city.en, addressCountry: profile.country } },
-      knowsAbout: profile.genres, sameAs: sameAs, memberOf: { "@id": SITE + "/#artist" }
+      email: profile.email, homeLocation: { "@type": "City", name: profile.city.en, address: { "@type": "PostalAddress", addressLocality: profile.city.en, addressCountry: profile.country } },
+      nationality: { "@type": "Country", name: "Türkiye" },
+      knowsAbout: profile.genres, sameAs: profiles.map(function (l) { return l.url; })
     },
-    profile.eventSeries ? { "@type": "EventSeries", "@id": SITE + "/#series", name: profile.eventSeries, organizer: { "@id": SITE + "/#person" }, performer: { "@id": SITE + "/#artist" }, location: { "@type": "City", name: profile.city.en } } : null,
-    {
-      "@type": "MusicGroup", "@id": SITE + "/#artist", name: profile.name, alternateName: profile.alternateNames,
-      description: profile.tagline.en, genre: profile.genres, url: SITE + "/", image: SITE + "/assets/img/og.jpg", logo: SITE + "/assets/img/logo.svg",
-      foundingLocation: { "@type": "City", name: profile.city.en }, member: { "@id": SITE + "/#person" }, sameAs: sameAs,
-      track: releases.map(function (r) {
-        return { "@type": "MusicRecording", name: r.title, url: r.url, datePublished: r.date, duration: isoDuration(r.duration), byArtist: { "@id": SITE + "/#artist" } };
-      })
-    }
-  ];
+    profile.eventSeries ? { "@type": "EventSeries", "@id": SITE + "/#series", name: profile.eventSeries, organizer: person, performer: person, location: { "@type": "City", name: profile.city.en } } : null
+  ].concat(releases.map(function (r) {
+    return { "@type": "MusicRecording", name: r.title, url: r.url, datePublished: r.date, duration: isoDuration(r.duration), genre: r.genre || undefined, byArtist: person };
+  }));
   return '<script type="application/ld+json">' + JSON.stringify({ "@context": "https://schema.org", "@graph": graph.filter(Boolean).concat(extra || []) }).replace(/</g, "\\u003c") + "</script>";
 }
 function gigEvent(g) {
@@ -128,7 +131,7 @@ function gigEvent(g) {
     "@type": "MusicEvent", name: profile.name + " at " + g.venue + (g.title ? " — " + g.title.en : ""), startDate: g.date,
     eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: { "@type": "Place", name: g.venue, address: { "@type": "PostalAddress", addressLocality: L("en", g.city), addressCountry: g.country } },
-    performer: { "@id": SITE + "/#artist" }, organizer: { "@type": "Organization", name: g.venue }
+    performer: { "@id": SITE + "/#person" }, organizer: { "@type": "Organization", name: g.venue }
   };
   if (g.tickets) ev.offers = { "@type": "Offer", url: g.tickets, availability: "https://schema.org/InStock" };
   return ev;
@@ -146,7 +149,8 @@ function head(lang, page, title, description, extraHead) {
     '  <meta name="theme-color" content="#0a0a0b">\n' +
     '  <link rel="canonical" href="' + pageUrl(lang, page) + '">\n  ' + alt + "\n" +
     '  <link rel="alternate" hreflang="x-default" href="' + pageUrl("en", page) + '">\n' +
-    links.map(function (l) { return '  <link rel="me" href="' + esc(l.url) + '">\n'; }).join("") +
+    profiles.map(function (l) { return '  <link rel="me" href="' + esc(l.url) + '">\n'; }).join("") +
+    (profile.googleSiteVerification ? '  <meta name="google-site-verification" content="' + esc(profile.googleSiteVerification) + '">\n' : "") +
     '  <meta property="og:type" content="profile">\n' +
     '  <meta property="og:site_name" content="' + esc(profile.name) + '">\n' +
     '  <meta property="og:title" content="' + esc(title) + '">\n' +
@@ -154,10 +158,10 @@ function head(lang, page, title, description, extraHead) {
     '  <meta property="og:url" content="' + pageUrl(lang, page) + '">\n' +
     '  <meta property="og:image" content="' + SITE + '/assets/img/og.jpg">\n' +
     '  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n' +
+    '  <meta property="og:image:alt" content="' + esc(profile.name + " · " + L(lang, profile.tagline)) + '">\n' +
     '  <meta property="og:locale" content="' + (lang === "tr" ? "tr_TR" : "en_GB") + '">\n' +
     '  <meta property="og:locale:alternate" content="' + (lang === "tr" ? "en_GB" : "tr_TR") + '">\n' +
-    '  <meta property="og:see_also" content="https://soundcloud.com/inansounds">\n' +
-    '  <meta property="og:see_also" content="https://www.instagram.com/inan.sounds/">\n' +
+    profiles.map(function (l) { return '  <meta property="og:see_also" content="' + esc(l.url) + '">\n'; }).join("") +
     '  <meta name="twitter:card" content="summary_large_image">\n' +
     '  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">\n' +
     '  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">\n' +
@@ -370,13 +374,17 @@ function notFound() {
 // ---------- crawler files ----------
 var PAGES = ["", "epk", "privacy"];
 function sitemap() {
-  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' +
+  var press = media.photos.filter(function (p) { return p.press; });
+  var images = function (p) { return p === "" || p === "epk" ? press.map(function (ph) { return "<image:image><image:loc>" + SITE + ph.download + "</image:loc></image:image>"; }).join("") : ""; };
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' +
     PAGES.map(function (p) {
       return LANGS.map(function (lang) {
-        return "  <url><loc>" + pageUrl(lang, p) + "</loc><lastmod>" + today + "</lastmod>" +
-          LANGS.map(function (l) { return '<xhtml:link rel="alternate" hreflang="' + l + '" href="' + pageUrl(l, p) + '"/>'; }).join("") + "</url>\n";
+        return "  <url><loc>" + pageUrl(lang, p) + "</loc><lastmod>" + modified + "</lastmod>" +
+          LANGS.map(function (l) { return '<xhtml:link rel="alternate" hreflang="' + l + '" href="' + pageUrl(l, p) + '"/>'; }).join("") +
+          '<xhtml:link rel="alternate" hreflang="x-default" href="' + pageUrl("en", p) + '"/>' + images(p) + "</url>\n";
       }).join("");
-    }).join("") + "</urlset>\n";
+    }).join("") +
+    (profile.pressKit ? "  <url><loc>" + SITE + profile.pressKit + "</loc><lastmod>" + modified + "</lastmod></url>\n" : "") + "</urlset>\n";
 }
 function robots() {
   var bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User", "PerplexityBot", "Google-Extended", "Applebot-Extended", "CCBot"];
