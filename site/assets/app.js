@@ -52,36 +52,51 @@
     video.play().catch(function () {});
   }
 
-  // Booking form: Web3Forms via fetch when a key is configured, otherwise a prefilled mailto.
+  // Booking form: Web3Forms via fetch when a key is configured; a prefilled mailto is the fallback.
   var form = document.querySelector("form.form");
   if (!form) return;
   var status = form.querySelector(".status");
+  var email = form.getAttribute("data-email");
+  var hidden = ["access_key", "subject", "from_name", "redirect", "botcheck", "message"];
+  function subject(data) {
+    var parts = [data.get("organization"), data.get("event_date"), data.get("city")].filter(Boolean);
+    return "Booking: " + (parts.length ? parts.join(" · ") : data.get("name") || "");
+  }
+  function mailto(data) {
+    var lines = [];
+    data.forEach(function (v, k) { if (v && hidden.indexOf(k) < 0) lines.push(k + ": " + v); });
+    lines.push("", data.get("message") || "");
+    return "mailto:" + email + "?subject=" + encodeURIComponent(subject(data)) + "&body=" + encodeURIComponent(lines.join("\n"));
+  }
+  function fallback(data, text) {
+    var a = document.createElement("a");
+    a.href = mailto(data);
+    a.textContent = email;
+    status.replaceChildren(document.createTextNode(text + " "), a);
+  }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var data = new FormData(form);
     if (!form.getAttribute("data-key")) {
-      var lines = [];
-      data.forEach(function (v, k) { if (v && k !== "message") lines.push(k + ": " + v); });
-      lines.push("", data.get("message") || "");
-      status.textContent = form.getAttribute("data-mailto");
-      location.href = "mailto:" + form.getAttribute("data-email") + "?subject=" + encodeURIComponent("Booking: " + (data.get("organization") || data.get("name") || "")) +
-        "&body=" + encodeURIComponent(lines.join("\n"));
+      fallback(data, form.getAttribute("data-mailto"));
+      location.href = mailto(data);
       return;
     }
     var button = form.querySelector("button[type=submit]");
     button.disabled = true;
     status.textContent = form.getAttribute("data-sending");
+    data.set("subject", subject(data));
     data.delete("redirect");
-    fetch(form.action, { method: "POST", headers: { Accept: "application/json" }, body: data })
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+    fetch(form.action, { method: "POST", headers: { Accept: "application/json" }, body: data, signal: ctrl ? ctrl.signal : undefined })
       .then(function (r) { return r.json(); })
       .then(function (r) {
         if (!r.success) throw new Error(r.message);
         form.reset();
         status.textContent = form.getAttribute("data-sent");
       })
-      .catch(function () {
-        status.textContent = form.getAttribute("data-error") + " " + form.getAttribute("data-email");
-      })
-      .then(function () { button.disabled = false; });
+      .catch(function () { fallback(data, form.getAttribute("data-error")); })
+      .then(function () { clearTimeout(timer); button.disabled = false; });
   });
 })();

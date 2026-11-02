@@ -33,6 +33,7 @@ profile.roles.forEach(function (r, i) { bilingual(r, "profile.roles[" + i + "]")
 if (profile.hero.video) file(profile.hero.video, "profile.hero.video");
 if (profile.rider) bilingual(profile.rider, "profile.rider");
 if (profile.pressKit) file(profile.pressKit, "profile.pressKit");
+if (profile.form.web3formsAccessKey) assert.ok(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(profile.form.web3formsAccessKey), "profile.form.web3formsAccessKey must be a Web3Forms UUID");
 
 var releases = readJson("releases.json");
 assert.ok(releases.length, "releases.json is empty");
