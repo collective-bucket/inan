@@ -85,7 +85,8 @@ function icon(id) {
     youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="3.5"/><path d="M10 9v6l5-3z" fill="currentColor"/>',
     bandsintown: '<path d="M4 4h4v12h4V4h4v12h4v4H4z"/>',
     play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
-    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>'
   };
   return '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + paths[id] + "</svg>";
 }
@@ -189,6 +190,7 @@ function footer(lang) {
     '  <p><a href="mailto:' + profile.email + '">' + profile.email + "</a> · " + esc(L(lang, profile.city)) + "</p>\n" +
     "  <p class=\"fine\">© " + new Date().getFullYear() + " " + esc(profile.name) + ". " + esc(t(lang, "footer.rights")) + " " +
     '<a href="https://github.com/collective-bucket/inan">' + esc(t(lang, "footer.code")) + "</a> · " +
+    (profile.pressKit ? '<a href="' + esc(profile.pressKit) + '" download>' + esc(t(lang, "booking.presskit")) + " (PDF)</a> · " : "") +
     '<a href="' + localPath(lang, "privacy") + '">' + esc(t(lang, "footer.privacy")) + "</a></p>\n</footer>\n";
 }
 function page(lang, name, title, description, body, ld, extraHead) {
@@ -279,6 +281,7 @@ function bookingSection(lang) {
   return '<section id="booking" class="section" aria-labelledby="booking-title">\n  <h2 id="booking-title">' + esc(t(lang, "booking.title")) + "</h2>\n" +
     '  <div class="booking">\n    <div>\n      <p class="section-intro">' + esc(t(lang, "booking.intro")) + "</p>\n" +
     '      <p class="contact-line">' + icon("mail") + '<span><span class="label">' + esc(t(lang, "booking.email")) + '</span><a href="mailto:' + profile.email + '">' + profile.email + "</a></span></p>\n" +
+    (profile.pressKit ? '      <p class="contact-line">' + icon("file") + '<span><span class="label">' + esc(t(lang, "booking.presskit")) + '</span><a href="' + esc(profile.pressKit) + '" download>' + esc(t(lang, "epk.pdf")) + "</a></span></p>\n" : "") +
     (profile.management ? '      <p class="contact-line"><span><span class="label">' + esc(t(lang, "booking.management")) + "</span>" + esc(profile.management.name) +
       (profile.management.email ? ' · <a href="mailto:' + esc(profile.management.email) + '">' + esc(profile.management.email) + "</a>" : "") + "</span></p>\n" : "") +
     "      " + socialList("social") + "\n    </div>\n" +
