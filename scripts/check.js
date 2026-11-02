@@ -27,7 +27,9 @@ var profile = readJson("profile.json");
 bilingual(profile.tagline, "profile.tagline");
 bilingual(profile.city, "profile.city");
 assert.ok(profile.bio.en.length && profile.bio.en.length === profile.bio.tr.length, "profile.bio en/tr paragraph counts differ");
-profile.links.forEach(function (l, i) { assert.ok(l.id && l.label, "links[" + i + "]"); if (l.url) https(l.url, "links[" + i + "]"); });
+profile.links.forEach(function (l, i) { assert.ok(l.id && l.label, "links[" + i + "]"); if (l.url) https(l.url, "links[" + i + "]"); assert.ok(l.schemaOnly == null || typeof l.schemaOnly === "boolean", "links[" + i + "].schemaOnly"); });
+bilingual(profile.disambiguation, "profile.disambiguation");
+if (profile.googleSiteVerification) assert.ok(/^[\w-]{20,}$/.test(profile.googleSiteVerification), "profile.googleSiteVerification must be the content value of the Google meta tag");
 assert.ok(profile.roles && profile.roles.length, "profile.roles is empty");
 profile.roles.forEach(function (r, i) { bilingual(r, "profile.roles[" + i + "]"); });
 if (profile.hero.video) file(profile.hero.video, "profile.hero.video");
@@ -95,7 +97,13 @@ html.forEach(function (f) {
   for (var id of text.matchAll(/href="#([^"]+)"/g)) assert.ok(text.includes('id="' + id[1] + '"'), rel + ": missing anchor #" + id[1]);
   for (var ld of text.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     var g = JSON.parse(ld[1])["@graph"];
-    assert.ok(g.some(function (n) { return n["@type"] === "Person"; }) && g.some(function (n) { return n["@type"] === "MusicGroup"; }), rel + ": JSON-LD needs Person and MusicGroup");
+    var people = g.filter(function (n) { return n["@type"] === "Person"; });
+    assert.strictEqual(people.length, 1, rel + ": JSON-LD needs exactly one top-level Person");
+    assert.ok(people[0]["@id"] === profile.url + "/#person" && people[0].sameAs.length >= 2, rel + ": Person needs @id and at least 2 sameAs");
+    assert.ok(!g.some(function (n) { return n["@type"] === "MusicGroup"; }), rel + ": INÄN is one Person entity, no MusicGroup");
+    JSON.stringify(g).replace(/"@id":"([^"]+)"/g, function (_, id) {
+      assert.ok(!id.startsWith(profile.url + "/#") || g.some(function (n) { return n["@id"] === id; }), rel + ": JSON-LD reference to undefined " + id);
+    });
   }
 });
 ["index.html", "tr/index.html"].forEach(function (p) {
@@ -104,5 +112,16 @@ html.forEach(function (f) {
   assert.ok(text.includes('"@type":"MusicEvent"') || !readJson("gigs.json").length, p + ": MusicEvent JSON-LD missing");
 });
 ["robots.txt", "sitemap.xml", "llms.txt"].forEach(function (p) { assert.ok(fs.existsSync(path.join(pub, p)), "missing " + p); });
+var sitemap = fs.readFileSync(path.join(pub, "sitemap.xml"), "utf8");
+assert.strictEqual((sitemap.match(/<url>/g) || []).length, (sitemap.match(/<\/url>/g) || []).length, "sitemap.xml: unbalanced <url>");
+for (var loc of sitemap.matchAll(/<(?:loc|image:loc)>([^<]+)<\/(?:loc|image:loc)>|href="([^"]+)"/g)) {
+  var u = loc[1] || loc[2];
+  assert.ok(u.startsWith(profile.url + "/"), "sitemap.xml: off-site URL " + u);
+  var local = u.slice(profile.url.length);
+  assert.ok(exists(local), "sitemap.xml: " + u + " does not exist");
+  var page = local === "/" ? "index.html" : local.slice(1) + ".html";
+  if (fs.existsSync(path.join(pub, page))) assert.ok(!/<meta name="robots" content="noindex">/.test(fs.readFileSync(path.join(pub, page), "utf8")), "sitemap.xml: noindex page " + u);
+}
+for (var lm of sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) isoDate(lm[1], "sitemap.xml lastmod");
 
 console.log("check ok: " + html.length + " pages, " + en.length + " strings, " + releases.length + " sets");

@@ -2,8 +2,7 @@
   "name": "INÄN",
   "alternateNames": [
     "inan.sounds",
-    "INAN",
-    "İnan"
+    "INAN"
   ],
   "url": "https://inansounds.com",
   "city": {
@@ -39,6 +38,10 @@
   "tagline": {
     "en": "Istanbul-based DJ and Music Director at Marcel Avant: hypnotic, Berlin-rooted techno and indie dance.",
     "tr": "İstanbullu DJ ve Marcel Avant müzik direktörü: Berlin köklü, hipnotik techno ve indie dance."
+  },
+  "disambiguation": {
+    "en": "Istanbul-based techno and indie dance DJ (inan.sounds)",
+    "tr": "İstanbullu techno ve indie dance DJ'i (inan.sounds)"
   },
   "bio": {
     "en": [
@@ -96,6 +99,29 @@
       "id": "bandsintown",
       "label": "Bandsintown",
       "url": null
+    },
+    {
+      "id": "mixcloud",
+      "label": "Mixcloud",
+      "url": null
+    },
+    {
+      "id": "discogs",
+      "label": "Discogs",
+      "url": null,
+      "schemaOnly": true
+    },
+    {
+      "id": "musicbrainz",
+      "label": "MusicBrainz",
+      "url": null,
+      "schemaOnly": true
+    },
+    {
+      "id": "wikidata",
+      "label": "Wikidata",
+      "url": null,
+      "schemaOnly": true
     }
   ],
   "hero": {
@@ -105,5 +131,6 @@
   },
   "form": {
     "web3formsAccessKey": "9599ed92-9c71-4a0e-9a58-07f5859e866a"
-  }
+  },
+  "googleSiteVerification": null
 }

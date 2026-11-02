@@ -15,7 +15,7 @@ All content lives in `data/` and is rendered to plain HTML at build time (`scrip
 
 | File | What |
 | --- | --- |
-| `data/profile.json` | Name, roles, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, `pressKit` (PDF in `site/assets/press/`), social links, hero (`photo`/`mobilePhoto` = ids from `media.json`, optional `video`), Web3Forms key |
+| `data/profile.json` | Name, roles, tagline, bio (`en`/`tr`), genres, venues, email, management, rider, `pressKit` (PDF in `site/assets/press/`), social links (`schemaOnly: true` = JSON-LD `sameAs` only, not shown), `disambiguation {en,tr}`, `googleSiteVerification` (optional meta tag value), hero (`photo`/`mobilePhoto` = ids from `media.json`, optional `video`), Web3Forms key |
 | `data/releases.json` | SoundCloud sets, newest first is the "Listen Live" target. Artwork goes in `site/assets/img/releases/` (400×400 WebP) |
 | `data/gigs.json` | Dates. Past/upcoming is split at build time and again in the browser |
 | `data/media.json` | `photos` (`id`, `src` prefix → `site/assets/img/photos/<name>-<width>.{avif,webp}`, `widths`, `width`/`height` of the original, `focus` (`center`/`right`), `gallery: false` = EPK only, `alt {en,tr}`, `credit`, `creditUrl`, `press`, `download` = 2400 px JPG in `site/assets/img/press/`) and `videos` (`youtubeId`, `poster`, `title {en,tr}`) |
@@ -23,7 +23,11 @@ All content lives in `data/` and is rendered to plain HTML at build time (`scrip
 
 Logo: `site/assets/img/logo.svg` (dark, for light backgrounds) and `logo-light.svg` (inlined in the header and hero). Photos: © Can Sarıçoban.
 
-Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown links, optional hero video loop (keep it ≤ 2 MB, it only plays on wide screens), live/club photos, management, upcoming dates.
+Still to fill in: Resident Advisor / Spotify / YouTube / Bandsintown / Mixcloud / Discogs / MusicBrainz / Wikidata links, optional hero video loop (keep it ≤ 2 MB, it only plays on wide screens), live/club photos, management, upcoming dates.
+
+### Search and Knowledge Panel
+
+The JSON-LD describes one entity, `Person` `#person` (no separate `MusicGroup`), referenced by the sets (`MusicRecording.byArtist`), dates and Sound of Berlin. Every profile link with a URL becomes `sameAs` and `rel="me"`. `sitemap.xml` lists both languages with hreflang/x-default, press photos and the press kit PDF; `lastmod` is the last commit touching `data/`, `site/` or `scripts/`. Search Console: add a Domain property for inansounds.com (DNS TXT at Squarespace) and submit `https://inansounds.com/sitemap.xml`.
 
 ### Booking form
 
